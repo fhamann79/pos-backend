@@ -1,79 +1,74 @@
-﻿# AGENTS.md
+# AGENTS.md
 
-Este archivo define **reglas, estándares y flujos de trabajo** para que Codex (y cualquier colaborador) pueda trabajar correctamente en el proyecto POS.
+Este archivo define las **reglas, estándares y flujos de trabajo** para que Codex (y cualquier colaborador) pueda trabajar correctamente en el backend del sistema POS.
 
 ---
 
-## PARTE A — POS BACKEND (.NET)
+## Alcance del repositorio
 
-### 1. Stack técnico
+Este backend implementa un sistema POS multiempresa con inventario, ventas y facturación. La arquitectura real está organizada por capas:
 
-* Plataforma: .NET (especificar versión exacta en `global.json` si existe)
-* Tipo: API REST
-* Arquitectura: Clean Architecture / Capas (API, Application, Domain, Infrastructure)
-* ORM: Entity Framework Core (si aplica)
-* Base de datos: (especificar: SQL Server / PostgreSQL / MySQL)
+- **Core**: entidades, DTOs, contratos y servicios de negocio.
+- **Infrastructure**: persistencia con Entity Framework Core, DbContext, repositorios y migraciones.
+- **WebApi**: controllers delgados sin lógica de negocio.
 
-### 2. Principios obligatorios
+---
 
-* La **API es stateless**
-* Separación estricta de capas
-* Controllers **no contienen lógica de negocio**
-* Toda lógica vive en Application/Services
-* Validaciones en DTOs + capa Application
-* Manejo centralizado de errores
-
-### 3. Estructura esperada
+## Arquitectura real del repositorio
 
 ```
-pos-backend/
- ├─ src/
- │   ├─ Api/
- │   │   ├─ Controllers/
- │   │   ├─ Middleware/
- │   │   └─ Program.cs
- │   ├─ Application/
- │   │   ├─ DTOs/
- │   │   ├─ Interfaces/
- │   │   ├─ Services/
- │   │   └─ Validators/
- │   ├─ Domain/
- │   │   ├─ Entities/
- │   │   └─ Enums/
- │   └─ Infrastructure/
- │       ├─ Persistence/
- │       ├─ Repositories/
- │       └─ Migrations/
- └─ tests/
+Pos.Backend.Api/
+ ├─ Core/
+ │  ├─ Entities/
+ │  ├─ DTOs/
+ │  ├─ Interfaces/
+ │  └─ Services/
+ ├─ Infrastructure/
+ │  ├─ Data/
+ │  └─ Repositories/
+ ├─ Migrations/
+ ├─ WebApi/
+ │  └─ Controllers/
+ ├─ Program.cs
+ └─ Pos.Backend.Api.csproj
 ```
 
-### 4. Convenciones
+---
 
-* Controllers: `ProductosController`, `VentasController`
-* Endpoints REST claros (GET, POST, PUT, DELETE)
-* DTOs: `ProductoDto`, `CreateProductoDto`
-* Responses consistentes:
+## Principios obligatorios
+
+- **API stateless**: no almacenar estado de sesión en el servidor.
+- **Controllers sin lógica de negocio**: los controllers solo orquestan y delegan en servicios.
+- **Toda lógica vive en Core/Services**.
+- **Persistencia solo en Infrastructure** (DbContext, repositorios, EF Core).
+- **JWT** como mecanismo de autenticación.
+- **Multiempresa obligatoria**: toda operación debe considerar `CompanyId` y `EstablishmentId`.
+- **Separación estricta de capas**: no cruzar dependencias indebidas.
+- **Tests cuando aplique**: cambios en lógica o contratos requieren pruebas.
+
+---
+
+## Convenciones de código
+
+- **Controllers**: `XxxController` con endpoints REST claros (GET/POST/PUT/DELETE).
+- **DTOs**: `XxxDto`, `CreateXxxDto`, `UpdateXxxDto`.
+- **Respuestas consistentes** (si aplica):
 
 ```json
 { "success": true, "data": {}, "message": "" }
 ```
 
-### 5. Manejo de errores
+---
 
-* No lanzar excepciones genéricas
-* Usar middleware global
-* HTTP status claros: 400, 401, 403, 404, 409, 500
+## Manejo de errores
 
-### 6. Tests
+- Evitar excepciones genéricas.
+- Preferir manejo centralizado de errores.
+- Usar códigos HTTP claros: 400, 401, 403, 404, 409, 500.
 
-* Tests obligatorios para:
+---
 
-  * Servicios
-  * Validaciones
-* Framework: xUnit / NUnit
-* Un PR sin tests **no se acepta**
-
-### 7. Comandos comunes
+## Comandos comunes
 
 ```bash
 dotnet restore
@@ -85,24 +80,26 @@ dotnet ef database update
 
 ---
 
-## REGLAS PARA CODEX / IA
+## Cómo debe trabajar Codex en este repo
 
-* Antes de escribir código: **explicar el enfoque**
-* No romper código existente
-* Mantener estilo y convenciones
-* Agregar tests cuando aplique
-* Explicar cada cambio importante
-* Si hay duda: preguntar antes de asumir
+1. **Leer este AGENTS.md antes de cambiar cualquier archivo**.
+2. Validar la estructura real del proyecto y respetar las capas.
+3. **No mover lógica al controller**: todo lo de negocio vive en `Core/Services`.
+4. **No tocar Infrastructure desde WebApi** excepto por interfaces expuestas en Core.
+5. Mantener el backend **stateless** y con autenticación JWT.
+6. Respetar la multiempresa (`CompanyId`, `EstablishmentId`) en cualquier flujo.
+7. Si un cambio afecta lógica, **agregar tests cuando aplique**.
+8. Explicar los cambios con claridad y sin asumir comportamientos no confirmados.
 
 ---
 
-## OBJETIVO DEL PROYECTO
+## Objetivo del proyecto
 
 Construir un **POS sólido, mantenible y escalable**, priorizando:
 
-* Claridad
-* Seguridad
-* Facilidad de evolución
-* Aprendizaje del desarrollador (Fernando)
+- Claridad
+- Seguridad
+- Facilidad de evolución
+- Aprendizaje continuo del equipo
 
 Este archivo es obligatorio y debe respetarse en cada cambio.
