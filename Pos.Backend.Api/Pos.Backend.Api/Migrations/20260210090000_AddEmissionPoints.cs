@@ -16,7 +16,7 @@ namespace Pos.Backend.Api.Migrations
                 name: "EmissionPointId",
                 table: "Users",
                 type: "integer",
-                nullable: false);
+                nullable: true);
 
             migrationBuilder.CreateTable(
                 name: "EmissionPoints",
@@ -40,6 +40,35 @@ namespace Pos.Backend.Api.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.Sql("""
+                INSERT INTO "EmissionPoints" ("EstablishmentId", "Code", "Name", "IsActive", "CreatedAt")
+                SELECT e."Id", '001', 'Caja Principal', TRUE, NOW()
+                FROM "Establishments" e
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM "EmissionPoints" ep
+                    WHERE ep."EstablishmentId" = e."Id" AND ep."Code" = '001'
+                );
+                """);
+
+            migrationBuilder.Sql("""
+                UPDATE "Users" u
+                SET "EmissionPointId" = ep."Id"
+                FROM "EmissionPoints" ep
+                WHERE u."EstablishmentId" = ep."EstablishmentId"
+                  AND ep."Code" = '001'
+                  AND u."EmissionPointId" IS NULL;
+                """);
+
+            migrationBuilder.AlterColumn<int>(
+                name: "EmissionPointId",
+                table: "Users",
+                type: "integer",
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: "integer",
+                oldNullable: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmissionPoints_EstablishmentId",
