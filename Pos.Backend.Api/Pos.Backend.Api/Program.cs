@@ -100,6 +100,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<PosDbContext>();
+    await SeedData.SeedDevelopmentAsync(context);
 }
 
 app.UseHttpsRedirection();

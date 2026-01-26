@@ -23,7 +23,8 @@ public class JwtService
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim("username", user.Username),
             new Claim("companyId", user.CompanyId.ToString()),
-            new Claim("establishmentId", user.EstablishmentId!.Value.ToString())
+            new Claim("establishmentId", user.EstablishmentId!.Value.ToString()),
+            new Claim("emissionPointId", user.EmissionPointId!.Value.ToString())
         };
 
         var key = new SymmetricSecurityKey(

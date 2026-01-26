@@ -52,13 +52,15 @@ public class AuthController : ControllerBase
         var username = User.FindFirst("username")?.Value;
         var companyId = User.FindFirst("companyId")?.Value;
         var establishmentId = User.FindFirst("establishmentId")?.Value;
+        var emissionPointId = User.FindFirst("emissionPointId")?.Value;
 
         return Ok(new
         {
             userId,
             username,
             companyId,
-            establishmentId
+            establishmentId,
+            emissionPointId
         });
     }
 }

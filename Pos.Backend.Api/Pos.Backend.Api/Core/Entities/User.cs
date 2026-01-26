@@ -24,4 +24,7 @@ public class User
 
     public int? EstablishmentId { get; set; }
     public Establishment? Establishment { get; set; }
+
+    public int? EmissionPointId { get; set; }
+    public EmissionPoint? EmissionPoint { get; set; }
 }
