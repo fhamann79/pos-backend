@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -16,7 +16,7 @@ namespace Pos.Backend.Api.Migrations
                 name: "EmissionPointId",
                 table: "Users",
                 type: "integer",
-                nullable: true);
+                nullable: false);
 
             migrationBuilder.CreateTable(
                 name: "EmissionPoints",
@@ -56,7 +56,8 @@ namespace Pos.Backend.Api.Migrations
                 table: "Users",
                 column: "EmissionPointId",
                 principalTable: "EmissionPoints",
-                principalColumn: "Id");
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />

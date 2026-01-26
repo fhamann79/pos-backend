@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Pos.Backend.Api.Core.Entities;
 
 namespace Pos.Backend.Api.Infrastructure.Data;

@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +24,7 @@ public class JwtService
             new Claim("username", user.Username),
             new Claim("companyId", user.CompanyId.ToString()),
             new Claim("establishmentId", user.EstablishmentId!.Value.ToString()),
-            new Claim("emissionPointId", user.EmissionPointId!.Value.ToString())
+            new Claim("emissionPointId", user.EmissionPointId.ToString())
         };
 
         var key = new SymmetricSecurityKey(

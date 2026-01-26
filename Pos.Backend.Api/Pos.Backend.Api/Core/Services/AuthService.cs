@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pos.Backend.Api.Core.DTOs;
 using Pos.Backend.Api.Core.Entities;
@@ -67,7 +67,7 @@ public class AuthService
             return null;
 
         // 6) Validación: usuario debe tener EmissionPoint asignado
-        if (user.EmissionPointId is null)
+        if (user.EmissionPointId <= 0)
             return null;
 
         // 7) Validación: punto de emisión existe y está activo
