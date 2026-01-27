@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pos.Backend.Api.Core.DTOs;
 using Pos.Backend.Api.Core.Entities;
@@ -47,6 +47,7 @@ public class AuthService
         var user = await _context.Users
             .Include(u => u.Company)
             .Include(u => u.Establishment)
+            .Include(u => u.EmissionPoint)
             .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
         // 2) Validación: usuario existe y está activo
@@ -65,7 +66,15 @@ public class AuthService
         if (user.Establishment is null || !user.Establishment.IsActive)
             return null;
 
-        // 6) Validación password hash
+        // 6) Validación: usuario debe tener EmissionPoint asignado
+        if (user.EmissionPointId <= 0)
+            return null;
+
+        // 7) Validación: punto de emisión existe y está activo
+        if (user.EmissionPoint is null || !user.EmissionPoint.IsActive)
+            return null;
+
+        // 8) Validación password hash
         var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
 
         return result == PasswordVerificationResult.Success ? user : null;

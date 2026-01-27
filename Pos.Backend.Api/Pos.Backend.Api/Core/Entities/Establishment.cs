@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Pos.Backend.Api.Core.Entities;
 
@@ -26,4 +26,6 @@ public class Establishment
     public bool IsActive { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public ICollection<EmissionPoint> EmissionPoints { get; set; } = new List<EmissionPoint>();
 }

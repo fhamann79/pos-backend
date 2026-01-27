@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Pos.Backend.Api.Core.Entities;
 
@@ -24,4 +24,7 @@ public class User
 
     public int? EstablishmentId { get; set; }
     public Establishment? Establishment { get; set; }
+
+    public int EmissionPointId { get; set; }
+    public EmissionPoint EmissionPoint { get; set; }
 }
