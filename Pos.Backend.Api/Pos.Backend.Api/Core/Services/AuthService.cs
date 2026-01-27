@@ -41,7 +41,7 @@ public class AuthService
         return (true, "");
     }
 
-    public async Task<User?> ValidateLoginAsync(LoginDto dto)
+    public async Task<(User? User, string Error)> ValidateLoginAsync(LoginDto dto)
     {
         // 1) Traer user + Company + Establishment (para validar reglas)
         var user = await _context.Users
@@ -52,31 +52,33 @@ public class AuthService
 
         // 2) Validación: usuario existe y está activo
         if (user is null || !user.IsActive)
-            return null;
+            return (null, "USER_INACTIVE_OR_NOT_FOUND");
 
         // 3) Validación: empresa existe y está activa
         if (user.Company is null || !user.Company.IsActive)
-            return null;
+            return (null, "COMPANY_INACTIVE_OR_NOT_FOUND");
 
         // 4) Validación: usuario debe tener Establishment asignado
         if (user.EstablishmentId is null)
-            return null;
+            return (null, "ESTABLISHMENT_NOT_ASSIGNED");
 
         // 5) Validación: establecimiento existe y está activo
         if (user.Establishment is null || !user.Establishment.IsActive)
-            return null;
+            return (null, "ESTABLISHMENT_INACTIVE_OR_NOT_FOUND");
 
         // 6) Validación: usuario debe tener EmissionPoint asignado
         if (user.EmissionPointId <= 0)
-            return null;
+            return (null, "EMISSION_POINT_NOT_ASSIGNED");
 
         // 7) Validación: punto de emisión existe y está activo
         if (user.EmissionPoint is null || !user.EmissionPoint.IsActive)
-            return null;
+            return (null, "EMISSION_POINT_INACTIVE_OR_NOT_FOUND");
 
         // 8) Validación password hash
         var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
 
-        return result == PasswordVerificationResult.Success ? user : null;
+        return result == PasswordVerificationResult.Success
+            ? (user, "")
+            : (null, "INVALID_CREDENTIALS");
     }
 }

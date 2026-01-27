@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pos.Backend.Api.Core.Entities;
 
@@ -7,27 +8,112 @@ public static class SeedData
 {
     public static async Task SeedDevelopmentAsync(PosDbContext context)
     {
-        if (await context.EmissionPoints.AnyAsync())
+        const string companyRuc = "9999999999001";
+        const string companyName = "Demo Company";
+        const string establishmentCode = "001";
+        const string emissionPointCode = "001";
+        const string adminUsername = "admin";
+        const string adminEmail = "admin@demo.local";
+        const string adminPassword = "admin123";
+
+        var company = await context.Companies
+            .FirstOrDefaultAsync(c => c.Ruc == companyRuc);
+
+        if (company is null)
         {
-            return;
+            company = new Company
+            {
+                Name = companyName,
+                Ruc = companyRuc,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            context.Companies.Add(company);
+            await context.SaveChangesAsync();
         }
 
-        var establishment = await context.Establishments.FirstOrDefaultAsync();
+        var establishment = await context.Establishments
+            .FirstOrDefaultAsync(e => e.CompanyId == company.Id && e.Code == establishmentCode);
+
         if (establishment is null)
         {
-            return;
+            establishment = new Establishment
+            {
+                CompanyId = company.Id,
+                Code = establishmentCode,
+                Name = "Matriz",
+                Address = "Direccion principal",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            context.Establishments.Add(establishment);
+            await context.SaveChangesAsync();
         }
 
-        var emissionPoint = new EmissionPoint
-        {
-            EstablishmentId = establishment.Id,
-            Code = "001",
-            Name = "Caja Principal",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
+        var emissionPoint = await context.EmissionPoints
+            .FirstOrDefaultAsync(e => e.EstablishmentId == establishment.Id && e.Code == emissionPointCode);
 
-        context.EmissionPoints.Add(emissionPoint);
-        await context.SaveChangesAsync();
+        if (emissionPoint is null)
+        {
+            emissionPoint = new EmissionPoint
+            {
+                EstablishmentId = establishment.Id,
+                Code = emissionPointCode,
+                Name = "Caja Principal",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            context.EmissionPoints.Add(emissionPoint);
+            await context.SaveChangesAsync();
+        }
+
+        var adminUser = await context.Users
+            .FirstOrDefaultAsync(u => u.Username == adminUsername);
+
+        var hasher = new PasswordHasher<User>();
+
+        if (adminUser is null)
+        {
+            adminUser = new User
+            {
+                Username = adminUsername,
+                Email = adminEmail,
+                CompanyId = company.Id,
+                EstablishmentId = establishment.Id,
+                EmissionPointId = emissionPoint.Id,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            adminUser.PasswordHash = hasher.HashPassword(adminUser, adminPassword);
+            context.Users.Add(adminUser);
+            await context.SaveChangesAsync();
+        }
+        else
+        {
+            var needsUpdate = false;
+
+            if (adminUser.CompanyId <= 0)
+            {
+                adminUser.CompanyId = company.Id;
+                needsUpdate = true;
+            }
+
+            if (adminUser.EstablishmentId is null)
+            {
+                adminUser.EstablishmentId = establishment.Id;
+                needsUpdate = true;
+            }
+
+            if (adminUser.EmissionPointId <= 0)
+            {
+                adminUser.EmissionPointId = emissionPoint.Id;
+                needsUpdate = true;
+            }
+
+            if (needsUpdate)
+            {
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }

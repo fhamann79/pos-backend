@@ -32,10 +32,10 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
-        var user = await _auth.ValidateLoginAsync(dto);
+        var (user, error) = await _auth.ValidateLoginAsync(dto);
 
         if (user == null)
-            return Unauthorized();
+            return Unauthorized(new { error });
 
         var token = _jwt.GenerateToken(user);
 
@@ -50,9 +50,24 @@ public class AuthController : ControllerBase
                      ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
         var username = User.FindFirst("username")?.Value;
-        var companyId = User.FindFirst("companyId")?.Value;
-        var establishmentId = User.FindFirst("establishmentId")?.Value;
-        var emissionPointId = User.FindFirst("emissionPointId")?.Value;
+        var companyIdValue = User.FindFirst("companyId")?.Value;
+        var establishmentIdValue = User.FindFirst("establishmentId")?.Value;
+        var emissionPointIdValue = User.FindFirst("emissionPointId")?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId)
+            || string.IsNullOrWhiteSpace(companyIdValue)
+            || string.IsNullOrWhiteSpace(establishmentIdValue)
+            || string.IsNullOrWhiteSpace(emissionPointIdValue))
+        {
+            return Unauthorized(new { error = "INVALID_CLAIMS" });
+        }
+
+        if (!int.TryParse(companyIdValue, out var companyId)
+            || !int.TryParse(establishmentIdValue, out var establishmentId)
+            || !int.TryParse(emissionPointIdValue, out var emissionPointId))
+        {
+            return Unauthorized(new { error = "INVALID_CLAIMS" });
+        }
 
         return Ok(new
         {
