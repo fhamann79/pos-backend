@@ -87,33 +87,51 @@ public static class SeedData
             adminUser.PasswordHash = hasher.HashPassword(adminUser, adminPassword);
             context.Users.Add(adminUser);
             await context.SaveChangesAsync();
+            return;
         }
-        else
+
+        var needsUpdate = false;
+
+        if (adminUser.CompanyId <= 0)
         {
-            var needsUpdate = false;
+            adminUser.CompanyId = company.Id;
+            needsUpdate = true;
+        }
 
-            if (adminUser.CompanyId <= 0)
-            {
-                adminUser.CompanyId = company.Id;
-                needsUpdate = true;
-            }
+        if (adminUser.EstablishmentId is null)
+        {
+            adminUser.EstablishmentId = establishment.Id;
+            needsUpdate = true;
+        }
 
-            if (adminUser.EstablishmentId is null)
-            {
-                adminUser.EstablishmentId = establishment.Id;
-                needsUpdate = true;
-            }
+        var adminEstablishmentId = adminUser.EstablishmentId ?? establishment.Id;
 
-            if (adminUser.EmissionPointId <= 0)
-            {
-                adminUser.EmissionPointId = emissionPoint.Id;
-                needsUpdate = true;
-            }
+        if (adminUser.EmissionPointId <= 0)
+        {
+            var adminEmissionPoint = await context.EmissionPoints
+                .FirstOrDefaultAsync(e => e.EstablishmentId == adminEstablishmentId && e.Code == emissionPointCode);
 
-            if (needsUpdate)
+            if (adminEmissionPoint is null)
             {
+                adminEmissionPoint = new EmissionPoint
+                {
+                    EstablishmentId = adminEstablishmentId,
+                    Code = emissionPointCode,
+                    Name = "Caja Principal",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+                context.EmissionPoints.Add(adminEmissionPoint);
                 await context.SaveChangesAsync();
             }
+
+            adminUser.EmissionPointId = adminEmissionPoint.Id;
+            needsUpdate = true;
+        }
+
+        if (needsUpdate)
+        {
+            await context.SaveChangesAsync();
         }
     }
 }
