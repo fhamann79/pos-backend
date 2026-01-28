@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Pos.Backend.Api.Core.Services;
 using Pos.Backend.Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -101,9 +101,27 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    using var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<PosDbContext>();
-    await SeedData.SeedDevelopmentAsync(context);
+    var seedDemoData = app.Configuration.GetValue<bool>("SeedDemoData");
+
+    if (seedDemoData)
+    {
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<PosDbContext>();
+
+        // 🔑 CLAVE: asegurar que las migraciones estén aplicadas
+        await context.Database.MigrateAsync();
+
+        const string demoCompanyRuc = "9999999999001";
+
+        // Ahora sí es seguro consultar
+        var hasRealCompanies = await context.Companies
+            .AnyAsync(c => c.Ruc != demoCompanyRuc);
+
+        if (!hasRealCompanies)
+        {
+            await SeedData.SeedDevelopmentAsync(context);
+        }
+    }
 }
 
 app.UseHttpsRedirection();
