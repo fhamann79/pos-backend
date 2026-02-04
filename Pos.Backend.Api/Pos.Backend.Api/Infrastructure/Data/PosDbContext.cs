@@ -11,6 +11,7 @@ public class PosDbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
     public DbSet<Company> Companies { get; set; }
     public DbSet<Establishment> Establishments { get; set; }
     public DbSet<EmissionPoint> EmissionPoints { get; set; }

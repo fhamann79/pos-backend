@@ -24,11 +24,18 @@ public class AuthService
         if (exists)
             return (false, "UsernameOrEmailAlreadyExists");
 
+        var defaultRole = await _context.Roles
+            .FirstOrDefaultAsync(r => r.Code == "CASHIER" && r.IsActive);
+
+        if (defaultRole is null)
+            return (false, "ROLE_NOT_FOUND");
+
         var user = new User
         {
             Username = dto.Username,
             Email = dto.Email,
             CompanyId = dto.CompanyId,
+            RoleId = defaultRole.Id,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };

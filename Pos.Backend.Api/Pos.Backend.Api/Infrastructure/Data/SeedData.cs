@@ -15,6 +15,36 @@ public static class SeedData
         const string adminUsername = "admin";
         const string adminEmail = "admin@demo.local";
         const string adminPassword = "admin123";
+        const string adminRoleCode = "ADMIN";
+
+        var roleDefinitions = new[]
+        {
+            new { Code = "ADMIN", Name = "Administrador" },
+            new { Code = "SUPERVISOR", Name = "Supervisor" },
+            new { Code = "CASHIER", Name = "Cajero" }
+        };
+
+        foreach (var roleDefinition in roleDefinitions)
+        {
+            var exists = await context.Roles
+                .AnyAsync(r => r.Code == roleDefinition.Code);
+
+            if (!exists)
+            {
+                context.Roles.Add(new Role
+                {
+                    Code = roleDefinition.Code,
+                    Name = roleDefinition.Name,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        await context.SaveChangesAsync();
+
+        var adminRole = await context.Roles
+            .FirstAsync(r => r.Code == adminRoleCode);
 
         var company = await context.Companies
             .FirstOrDefaultAsync(c => c.Ruc == companyRuc);
@@ -79,6 +109,7 @@ public static class SeedData
                 Username = adminUsername,
                 Email = adminEmail,
                 CompanyId = company.Id,
+                RoleId = adminRole.Id,
                 EstablishmentId = establishment.Id,
                 EmissionPointId = emissionPoint.Id,
                 IsActive = true,
@@ -95,6 +126,12 @@ public static class SeedData
         if (adminUser.CompanyId <= 0)
         {
             adminUser.CompanyId = company.Id;
+            needsUpdate = true;
+        }
+
+        if (adminUser.RoleId <= 0)
+        {
+            adminUser.RoleId = adminRole.Id;
             needsUpdate = true;
         }
 
