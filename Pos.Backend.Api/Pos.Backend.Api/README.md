@@ -79,6 +79,12 @@ Los perfiles locales definen los siguientes puertos:
 - `POST /api/auth/register`
 - `GET /api/auth/me` (requiere JWT en `Authorization: Bearer <token>`)
 
+### Credenciales demo (SeedDevelopmentAsync)
+
+- admin / admin123 (ADMIN)
+- super / super123 (SUPERVISOR)
+- cashier / cashier123 (CASHIER)
+
 ---
 
 ## Notas

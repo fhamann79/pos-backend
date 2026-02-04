@@ -53,11 +53,13 @@ public class AuthController : ControllerBase
         var companyIdValue = User.FindFirst("companyId")?.Value;
         var establishmentIdValue = User.FindFirst("establishmentId")?.Value;
         var emissionPointIdValue = User.FindFirst("emissionPointId")?.Value;
+        var roleCode = User.FindFirstValue(ClaimTypes.Role);
 
         if (string.IsNullOrWhiteSpace(userId)
             || string.IsNullOrWhiteSpace(companyIdValue)
             || string.IsNullOrWhiteSpace(establishmentIdValue)
-            || string.IsNullOrWhiteSpace(emissionPointIdValue))
+            || string.IsNullOrWhiteSpace(emissionPointIdValue)
+            || string.IsNullOrWhiteSpace(roleCode))
         {
             return Unauthorized(new { error = "INVALID_CLAIMS" });
         }
@@ -75,7 +77,8 @@ public class AuthController : ControllerBase
             username,
             companyId,
             establishmentId,
-            emissionPointId
+            emissionPointId,
+            roleCode
         });
     }
 }

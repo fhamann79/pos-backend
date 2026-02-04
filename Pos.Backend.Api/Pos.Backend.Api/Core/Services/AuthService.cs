@@ -55,6 +55,7 @@ public class AuthService
             .Include(u => u.Company)
             .Include(u => u.Establishment)
             .Include(u => u.EmissionPoint)
+            .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
         // 2) Validación: usuario existe y está activo

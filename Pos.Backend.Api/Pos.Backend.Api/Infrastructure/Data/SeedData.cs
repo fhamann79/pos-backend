@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pos.Backend.Api.Core.Entities;
+using Pos.Backend.Api.Core.Security;
 
 namespace Pos.Backend.Api.Infrastructure.Data;
 
@@ -15,13 +16,18 @@ public static class SeedData
         const string adminUsername = "admin";
         const string adminEmail = "admin@demo.local";
         const string adminPassword = "admin123";
-        const string adminRoleCode = "ADMIN";
+        const string superUsername = "super";
+        const string superEmail = "super@demo.local";
+        const string superPassword = "super123";
+        const string cashierUsername = "cashier";
+        const string cashierEmail = "cashier@demo.local";
+        const string cashierPassword = "cashier123";
 
         var roleDefinitions = new[]
         {
-            new { Code = "ADMIN", Name = "Administrador" },
-            new { Code = "SUPERVISOR", Name = "Supervisor" },
-            new { Code = "CASHIER", Name = "Cajero" }
+            new { Code = AppRoles.Admin, Name = "Administrador" },
+            new { Code = AppRoles.Supervisor, Name = "Supervisor" },
+            new { Code = AppRoles.Cashier, Name = "Cajero" }
         };
 
         foreach (var roleDefinition in roleDefinitions)
@@ -44,7 +50,13 @@ public static class SeedData
         await context.SaveChangesAsync();
 
         var adminRole = await context.Roles
-            .FirstAsync(r => r.Code == adminRoleCode);
+            .FirstAsync(r => r.Code == AppRoles.Admin);
+
+        var supervisorRole = await context.Roles
+            .FirstAsync(r => r.Code == AppRoles.Supervisor);
+
+        var cashierRole = await context.Roles
+            .FirstAsync(r => r.Code == AppRoles.Cashier);
 
         var company = await context.Companies
             .FirstOrDefaultAsync(c => c.Ruc == companyRuc);
@@ -97,78 +109,78 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        var adminUser = await context.Users
-            .FirstOrDefaultAsync(u => u.Username == adminUsername);
-
         var hasher = new PasswordHasher<User>();
 
-        if (adminUser is null)
+        async Task EnsureDemoUserAsync(string username, string email, string password, Role role)
         {
-            adminUser = new User
+            var user = await context.Users
+                .FirstOrDefaultAsync(u => u.Username == username);
+
+            if (user is null)
             {
-                Username = adminUsername,
-                Email = adminEmail,
-                CompanyId = company.Id,
-                RoleId = adminRole.Id,
-                EstablishmentId = establishment.Id,
-                EmissionPointId = emissionPoint.Id,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-            adminUser.PasswordHash = hasher.HashPassword(adminUser, adminPassword);
-            context.Users.Add(adminUser);
-            await context.SaveChangesAsync();
-            return;
-        }
-
-        var needsUpdate = false;
-
-        if (adminUser.CompanyId <= 0)
-        {
-            adminUser.CompanyId = company.Id;
-            needsUpdate = true;
-        }
-
-        if (adminUser.RoleId <= 0)
-        {
-            adminUser.RoleId = adminRole.Id;
-            needsUpdate = true;
-        }
-
-        if (adminUser.EstablishmentId is null)
-        {
-            adminUser.EstablishmentId = establishment.Id;
-            needsUpdate = true;
-        }
-
-        var adminEstablishmentId = adminUser.EstablishmentId ?? establishment.Id;
-
-        if (adminUser.EmissionPointId <= 0)
-        {
-            var adminEmissionPoint = await context.EmissionPoints
-                .FirstOrDefaultAsync(e => e.EstablishmentId == adminEstablishmentId && e.Code == emissionPointCode);
-
-            if (adminEmissionPoint is null)
-            {
-                adminEmissionPoint = new EmissionPoint
+                user = new User
                 {
-                    EstablishmentId = adminEstablishmentId,
-                    Code = emissionPointCode,
-                    Name = "Caja Principal",
+                    Username = username,
+                    Email = email,
+                    CompanyId = company.Id,
+                    RoleId = role.Id,
+                    EstablishmentId = establishment.Id,
+                    EmissionPointId = emissionPoint.Id,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
-                context.EmissionPoints.Add(adminEmissionPoint);
+                user.PasswordHash = hasher.HashPassword(user, password);
+                context.Users.Add(user);
                 await context.SaveChangesAsync();
+                return;
             }
 
-            adminUser.EmissionPointId = adminEmissionPoint.Id;
-            needsUpdate = true;
+            var needsUpdate = false;
+
+            if (string.IsNullOrWhiteSpace(user.Email))
+            {
+                user.Email = email;
+                needsUpdate = true;
+            }
+
+            if (user.CompanyId <= 0)
+            {
+                user.CompanyId = company.Id;
+                needsUpdate = true;
+            }
+
+            if (user.RoleId != role.Id)
+            {
+                user.RoleId = role.Id;
+                needsUpdate = true;
+            }
+
+            if (user.EstablishmentId is null)
+            {
+                user.EstablishmentId = establishment.Id;
+                needsUpdate = true;
+            }
+
+            if (user.EmissionPointId <= 0)
+            {
+                user.EmissionPointId = emissionPoint.Id;
+                needsUpdate = true;
+            }
+
+            if (!user.IsActive)
+            {
+                user.IsActive = true;
+                needsUpdate = true;
+            }
+
+            if (needsUpdate)
+            {
+                await context.SaveChangesAsync();
+            }
         }
 
-        if (needsUpdate)
-        {
-            await context.SaveChangesAsync();
-        }
+        await EnsureDemoUserAsync(adminUsername, adminEmail, adminPassword, adminRole);
+        await EnsureDemoUserAsync(superUsername, superEmail, superPassword, supervisorRole);
+        await EnsureDemoUserAsync(cashierUsername, cashierEmail, cashierPassword, cashierRole);
     }
 }

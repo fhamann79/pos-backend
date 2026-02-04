@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pos.Backend.Api.Core.Services;
+using Pos.Backend.Api.Core.Security;
 using Pos.Backend.Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -31,6 +32,18 @@ builder.Services.AddDbContext<PosDbContext>(options =>
 //Auth
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<JwtService>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AppPolicies.AdminOnly, policy =>
+        policy.RequireRole(AppRoles.Admin));
+
+    options.AddPolicy(AppPolicies.SupervisorOrAdmin, policy =>
+        policy.RequireRole(AppRoles.Supervisor, AppRoles.Admin));
+
+    options.AddPolicy(AppPolicies.CashierOrAbove, policy =>
+        policy.RequireRole(AppRoles.Cashier, AppRoles.Supervisor, AppRoles.Admin));
+});
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();

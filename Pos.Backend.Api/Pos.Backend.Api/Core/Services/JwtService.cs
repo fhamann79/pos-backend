@@ -1,30 +1,46 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Pos.Backend.Api.Core.Entities;
+using Pos.Backend.Api.Infrastructure.Data;
 
 namespace Pos.Backend.Api.Core.Services;
 
 public class JwtService
 {
     private readonly IConfiguration _config;
+    private readonly PosDbContext _context;
 
-    public JwtService(IConfiguration config)
+    public JwtService(IConfiguration config, PosDbContext context)
     {
         _config = config;
+        _context = context;
     }
 
     public string GenerateToken(User user)
     {
+        var roleCode = user.Role?.Code;
+
+        if (string.IsNullOrWhiteSpace(roleCode) && user.RoleId > 0)
+        {
+            roleCode = _context.Roles
+                .AsNoTracking()
+                .Where(r => r.Id == user.RoleId)
+                .Select(r => r.Code)
+                .FirstOrDefault();
+        }
+
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim("username", user.Username),
             new Claim("companyId", user.CompanyId.ToString()),
             new Claim("establishmentId", user.EstablishmentId!.Value.ToString()),
-            new Claim("emissionPointId", user.EmissionPointId.ToString())
+            new Claim("emissionPointId", user.EmissionPointId.ToString()),
+            new Claim(ClaimTypes.Role, roleCode ?? string.Empty)
         };
 
         var key = new SymmetricSecurityKey(
