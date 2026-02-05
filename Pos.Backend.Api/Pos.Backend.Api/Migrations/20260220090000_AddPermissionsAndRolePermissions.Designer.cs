@@ -11,9 +11,11 @@ using Pos.Backend.Api.Infrastructure.Data;
 namespace Pos.Backend.Api.Migrations
 {
     [DbContext(typeof(PosDbContext))]
-    partial class PosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260220090000_AddPermissionsAndRolePermissions")]
+    partial class AddPermissionsAndRolePermissions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -334,16 +336,6 @@ namespace Pos.Backend.Api.Migrations
             modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Establishment", b =>
                 {
                     b.Navigation("EmissionPoints");
-                });
-
-            modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Permission", b =>
-                {
-                    b.Navigation("RolePermissions");
-                });
-
-            modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Role", b =>
-                {
-                    b.Navigation("RolePermissions");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Pos.Backend.Api.Core.Entities;
+using Pos.Backend.Api.Core.Security;
 using Pos.Backend.Api.Infrastructure.Data;
 
 namespace Pos.Backend.Api.Core.Services;
@@ -33,7 +34,14 @@ public class JwtService
                 .FirstOrDefault();
         }
 
-        var claims = new[]
+        var permissions = _context.RolePermissions
+            .AsNoTracking()
+            .Where(rp => rp.RoleId == user.RoleId && rp.Permission.IsActive)
+            .Select(rp => rp.Permission.Code)
+            .Distinct()
+            .ToList();
+
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim("username", user.Username),
@@ -42,6 +50,11 @@ public class JwtService
             new Claim("emissionPointId", user.EmissionPointId.ToString()),
             new Claim(ClaimTypes.Role, roleCode ?? string.Empty)
         };
+
+        foreach (var permission in permissions)
+        {
+            claims.Add(new Claim(AppClaims.Permission, permission));
+        }
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["Jwt:Key"])
