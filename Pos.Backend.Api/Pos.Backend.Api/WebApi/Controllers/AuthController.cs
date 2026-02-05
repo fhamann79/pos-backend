@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pos.Backend.Api.Core.DTOs;
+using Pos.Backend.Api.Core.Security;
 using Pos.Backend.Api.Core.Services;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
@@ -54,6 +55,10 @@ public class AuthController : ControllerBase
         var establishmentIdValue = User.FindFirst("establishmentId")?.Value;
         var emissionPointIdValue = User.FindFirst("emissionPointId")?.Value;
         var roleCode = User.FindFirstValue(ClaimTypes.Role);
+        var permissions = User.FindAll(AppClaims.Permission)
+            .Select(claim => claim.Value)
+            .Distinct()
+            .ToArray();
 
         if (string.IsNullOrWhiteSpace(userId)
             || string.IsNullOrWhiteSpace(companyIdValue)
@@ -78,7 +83,8 @@ public class AuthController : ControllerBase
             companyId,
             establishmentId,
             emissionPointId,
-            roleCode
+            roleCode,
+            permissions
         });
     }
 }

@@ -2,17 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Pos.Backend.Api.Core.Entities;
 
-public class Role
+public class Permission
 {
     public int Id { get; set; }
 
     [Required]
-    [MaxLength(30)]
+    [MaxLength(100)]
     public string Code { get; set; }
 
     [Required]
-    [MaxLength(60)]
-    public string Name { get; set; }
+    [MaxLength(200)]
+    public string Description { get; set; }
 
     public bool IsActive { get; set; }
 

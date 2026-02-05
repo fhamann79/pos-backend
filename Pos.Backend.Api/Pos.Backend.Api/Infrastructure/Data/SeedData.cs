@@ -58,6 +58,127 @@ public static class SeedData
         var cashierRole = await context.Roles
             .FirstAsync(r => r.Code == AppRoles.Cashier);
 
+        var permissionDefinitions = new[]
+        {
+            new { Code = AppPermissions.AuthProbeAdmin, Description = "Acceso a prueba de autorización admin" },
+            new { Code = AppPermissions.AuthProbeSupervisor, Description = "Acceso a prueba de autorización supervisor" },
+            new { Code = AppPermissions.AuthProbeCashier, Description = "Acceso a prueba de autorización cajero" },
+            new { Code = AppPermissions.CatalogCategoriesRead, Description = "Leer categorías de catálogo" },
+            new { Code = AppPermissions.CatalogCategoriesWrite, Description = "Escribir categorías de catálogo" },
+            new { Code = AppPermissions.CatalogProductsRead, Description = "Leer productos de catálogo" },
+            new { Code = AppPermissions.CatalogProductsWrite, Description = "Escribir productos de catálogo" },
+            new { Code = AppPermissions.PosSalesCreate, Description = "Crear ventas POS" },
+            new { Code = AppPermissions.PosSalesVoid, Description = "Anular ventas POS" },
+            new { Code = AppPermissions.ReportsSalesRead, Description = "Leer reportes de ventas" }
+        };
+
+        var existingPermissionCodes = await context.Permissions
+            .Select(p => p.Code)
+            .ToListAsync();
+
+        foreach (var permissionDefinition in permissionDefinitions)
+        {
+            if (!existingPermissionCodes.Contains(permissionDefinition.Code))
+            {
+                context.Permissions.Add(new Permission
+                {
+                    Code = permissionDefinition.Code,
+                    Description = permissionDefinition.Description,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        await context.SaveChangesAsync();
+
+        var permissions = await context.Permissions
+            .Where(p => permissionDefinitions.Select(d => d.Code).Contains(p.Code))
+            .ToListAsync();
+
+        var permissionByCode = permissions.ToDictionary(p => p.Code, p => p);
+
+        var rolePermissionMap = new Dictionary<int, string[]>
+        {
+            {
+                adminRole.Id,
+                new[]
+                {
+                    AppPermissions.AuthProbeAdmin,
+                    AppPermissions.AuthProbeSupervisor,
+                    AppPermissions.AuthProbeCashier,
+                    AppPermissions.CatalogCategoriesRead,
+                    AppPermissions.CatalogCategoriesWrite,
+                    AppPermissions.CatalogProductsRead,
+                    AppPermissions.CatalogProductsWrite,
+                    AppPermissions.PosSalesCreate,
+                    AppPermissions.PosSalesVoid,
+                    AppPermissions.ReportsSalesRead
+                }
+            },
+            {
+                supervisorRole.Id,
+                new[]
+                {
+                    AppPermissions.AuthProbeSupervisor,
+                    AppPermissions.CatalogCategoriesRead,
+                    AppPermissions.CatalogCategoriesWrite,
+                    AppPermissions.CatalogProductsRead,
+                    AppPermissions.CatalogProductsWrite,
+                    AppPermissions.PosSalesCreate,
+                    AppPermissions.PosSalesVoid,
+                    AppPermissions.ReportsSalesRead
+                }
+            },
+            {
+                cashierRole.Id,
+                new[]
+                {
+                    AppPermissions.AuthProbeCashier,
+                    AppPermissions.CatalogCategoriesRead,
+                    AppPermissions.CatalogProductsRead,
+                    AppPermissions.PosSalesCreate
+                }
+            }
+        };
+
+        var roleIds = rolePermissionMap.Keys.ToArray();
+        var permissionIds = permissionByCode.Values.Select(p => p.Id).ToArray();
+
+        var existingRolePermissions = await context.RolePermissions
+            .Where(rp => roleIds.Contains(rp.RoleId) && permissionIds.Contains(rp.PermissionId))
+            .Select(rp => new { rp.RoleId, rp.PermissionId })
+            .ToListAsync();
+
+        var existingRolePermissionSet = existingRolePermissions
+            .Select(rp => (rp.RoleId, rp.PermissionId))
+            .ToHashSet();
+
+        foreach (var roleEntry in rolePermissionMap)
+        {
+            foreach (var permissionCode in roleEntry.Value)
+            {
+                if (!permissionByCode.TryGetValue(permissionCode, out var permission))
+                {
+                    continue;
+                }
+
+                var key = (roleEntry.Key, permission.Id);
+                if (existingRolePermissionSet.Contains(key))
+                {
+                    continue;
+                }
+
+                context.RolePermissions.Add(new RolePermission
+                {
+                    RoleId = roleEntry.Key,
+                    PermissionId = permission.Id
+                });
+            }
+        }
+
+        await context.SaveChangesAsync();
+
         var company = await context.Companies
             .FirstOrDefaultAsync(c => c.Ruc == companyRuc);
 
