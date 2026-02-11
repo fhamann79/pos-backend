@@ -43,6 +43,20 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy(AppPolicies.CashierOrAbove, policy =>
         policy.RequireRole(AppRoles.Cashier, AppRoles.Supervisor, AppRoles.Admin));
+
+    options.AddPermissionPolicies(new[]
+    {
+        AppPermissions.AuthProbeAdmin,
+        AppPermissions.AuthProbeSupervisor,
+        AppPermissions.AuthProbeCashier,
+        AppPermissions.CatalogCategoriesRead,
+        AppPermissions.CatalogCategoriesWrite,
+        AppPermissions.CatalogProductsRead,
+        AppPermissions.CatalogProductsWrite,
+        AppPermissions.PosSalesCreate,
+        AppPermissions.PosSalesVoid,
+        AppPermissions.ReportsSalesRead
+    });
 });
 
 // Swagger
