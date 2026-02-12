@@ -22,6 +22,30 @@ namespace Pos.Backend.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Company", b =>
                 {
                     b.Property<int>("Id")
@@ -122,6 +146,39 @@ namespace Pos.Backend.Api.Migrations
                     b.ToTable("Establishments");
                 });
 
+            modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Products");
+                });
+
             modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Permission", b =>
                 {
                     b.Property<int>("Id")
@@ -182,6 +239,7 @@ namespace Pos.Backend.Api.Migrations
 
                     b.ToTable("Roles");
                 });
+
 
             modelBuilder.Entity("Pos.Backend.Api.Core.Entities.RolePermission", b =>
                 {
@@ -274,6 +332,17 @@ namespace Pos.Backend.Api.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Product", b =>
+                {
+                    b.HasOne("Pos.Backend.Api.Core.Entities.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("Pos.Backend.Api.Core.Entities.RolePermission", b =>
                 {
                     b.HasOne("Pos.Backend.Api.Core.Entities.Permission", "Permission")
@@ -326,6 +395,13 @@ namespace Pos.Backend.Api.Migrations
                     b.Navigation("Role");
                 });
 
+
+
+            modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Category", b =>
+                {
+                    b.Navigation("Products");
+                });
+
             modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Company", b =>
                 {
                     b.Navigation("Establishments");
@@ -335,6 +411,7 @@ namespace Pos.Backend.Api.Migrations
                 {
                     b.Navigation("EmissionPoints");
                 });
+
 
             modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Permission", b =>
                 {

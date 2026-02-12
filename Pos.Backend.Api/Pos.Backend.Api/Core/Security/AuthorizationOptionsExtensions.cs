@@ -10,6 +10,9 @@ public static class AuthorizationOptionsExtensions
         {
             options.AddPolicy($"Perm:{permission}", policy =>
                 policy.RequireClaim(AppClaims.Permission, permission));
+
+            options.AddPolicy(permission, policy =>
+                policy.RequireClaim(AppClaims.Permission, permission));
         }
     }
 }

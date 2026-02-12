@@ -63,22 +63,24 @@ public static class SeedData
             new { Code = AppPermissions.AuthProbeAdmin, Description = "Acceso a prueba de autorización admin" },
             new { Code = AppPermissions.AuthProbeSupervisor, Description = "Acceso a prueba de autorización supervisor" },
             new { Code = AppPermissions.AuthProbeCashier, Description = "Acceso a prueba de autorización cajero" },
-            new { Code = AppPermissions.CatalogCategoriesRead, Description = "Leer categorías de catálogo" },
-            new { Code = AppPermissions.CatalogCategoriesWrite, Description = "Escribir categorías de catálogo" },
-            new { Code = AppPermissions.CatalogProductsRead, Description = "Leer productos de catálogo" },
-            new { Code = AppPermissions.CatalogProductsWrite, Description = "Escribir productos de catálogo" },
+            new { Code = AppPermissions.CatalogCategoriesRead, Description = "Read categories" },
+            new { Code = AppPermissions.CatalogCategoriesWrite, Description = "Write categories" },
+            new { Code = AppPermissions.CatalogProductsRead, Description = "Read products" },
+            new { Code = AppPermissions.CatalogProductsWrite, Description = "Write products" },
             new { Code = AppPermissions.PosSalesCreate, Description = "Crear ventas POS" },
             new { Code = AppPermissions.PosSalesVoid, Description = "Anular ventas POS" },
             new { Code = AppPermissions.ReportsSalesRead, Description = "Leer reportes de ventas" }
         };
 
-        var existingPermissionCodes = await context.Permissions
-            .Select(p => p.Code)
+        var existingPermissions = await context.Permissions
             .ToListAsync();
+
+        var existingPermissionByCode = existingPermissions
+            .ToDictionary(p => p.Code, p => p);
 
         foreach (var permissionDefinition in permissionDefinitions)
         {
-            if (!existingPermissionCodes.Contains(permissionDefinition.Code))
+            if (!existingPermissionByCode.TryGetValue(permissionDefinition.Code, out var permission))
             {
                 context.Permissions.Add(new Permission
                 {
@@ -87,6 +89,18 @@ public static class SeedData
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 });
+
+                continue;
+            }
+
+            if (permission.Description != permissionDefinition.Description)
+            {
+                permission.Description = permissionDefinition.Description;
+            }
+
+            if (!permission.IsActive)
+            {
+                permission.IsActive = true;
             }
         }
 
