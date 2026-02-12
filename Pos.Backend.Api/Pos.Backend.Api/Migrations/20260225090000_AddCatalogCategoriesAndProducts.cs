@@ -1,12 +1,16 @@
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Pos.Backend.Api.Infrastructure.Data;
 
 #nullable disable
 
 namespace Pos.Backend.Api.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(PosDbContext))]
+    [Migration("20260225090000_AddCatalogCategoriesAndProducts")]
     public partial class AddCatalogCategoriesAndProducts : Migration
     {
         /// <inheritdoc />
