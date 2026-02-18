@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 
 // CORS para Angular
 builder.Services.AddCors(options =>
@@ -32,6 +33,8 @@ builder.Services.AddDbContext<PosDbContext>(options =>
 //Auth
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IOperationalContextAccessor, OperationalContextAccessor>();
+builder.Services.AddScoped<Pos.Backend.Api.WebApi.Filters.OperationalContextFilter>();
 
 builder.Services.AddAuthorization(options =>
 {

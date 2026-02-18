@@ -30,6 +30,9 @@ namespace Pos.Backend.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -42,6 +45,9 @@ namespace Pos.Backend.Api.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "Name")
+                        .IsUnique();
 
                     b.ToTable("Categories");
                 });
@@ -157,6 +163,9 @@ namespace Pos.Backend.Api.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -175,6 +184,8 @@ namespace Pos.Backend.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("Products");
                 });
@@ -332,6 +343,17 @@ namespace Pos.Backend.Api.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Category", b =>
+                {
+                    b.HasOne("Pos.Backend.Api.Core.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("Pos.Backend.Api.Core.Entities.Product", b =>
                 {
                     b.HasOne("Pos.Backend.Api.Core.Entities.Category", "Category")
@@ -340,7 +362,15 @@ namespace Pos.Backend.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Pos.Backend.Api.Core.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Category");
+
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("Pos.Backend.Api.Core.Entities.RolePermission", b =>

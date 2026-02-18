@@ -50,10 +50,10 @@ public class AuthController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
                      ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-        var username = User.FindFirst("username")?.Value;
-        var companyIdValue = User.FindFirst("companyId")?.Value;
-        var establishmentIdValue = User.FindFirst("establishmentId")?.Value;
-        var emissionPointIdValue = User.FindFirst("emissionPointId")?.Value;
+        var username = User.FindFirst(AppClaims.Username)?.Value;
+        var companyIdValue = User.FindFirst(AppClaims.CompanyId)?.Value;
+        var establishmentIdValue = User.FindFirst(AppClaims.EstablishmentId)?.Value;
+        var emissionPointIdValue = User.FindFirst(AppClaims.EmissionPointId)?.Value;
         var roleCode = User.FindFirstValue(ClaimTypes.Role);
         var permissions = User.FindAll(AppClaims.Permission)
             .Select(claim => claim.Value)
