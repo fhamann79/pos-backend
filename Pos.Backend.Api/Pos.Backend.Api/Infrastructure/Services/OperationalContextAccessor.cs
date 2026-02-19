@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Pos.Backend.Api.Core.Models;
 using Pos.Backend.Api.Core.Security;
+using Pos.Backend.Api.Core.Services;
 using Pos.Backend.Api.Infrastructure.Data;
 
-namespace Pos.Backend.Api.Core.Services;
+namespace Pos.Backend.Api.Infrastructure.Services;
 
 public class OperationalContextAccessor : IOperationalContextAccessor
 {
