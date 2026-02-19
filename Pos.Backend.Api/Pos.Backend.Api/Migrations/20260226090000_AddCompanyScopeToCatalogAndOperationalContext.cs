@@ -25,21 +25,21 @@ namespace Pos.Backend.Api.Migrations
                 nullable: true);
 
             migrationBuilder.Sql(@"
-                UPDATE \"Categories\"
-                SET \"CompanyId\" = (
-                    SELECT c.\"Id\"
-                    FROM \"Companies\" c
-                    ORDER BY c.\"Id\"
+                UPDATE ""Categories""
+                SET ""CompanyId"" = (
+                    SELECT c.""Id""
+                    FROM ""Companies"" c
+                    ORDER BY c.""Id""
                     LIMIT 1
                 )
-                WHERE \"Categories\".\"CompanyId\" IS NULL;");
+                WHERE ""Categories"".""CompanyId"" IS NULL;");
 
             migrationBuilder.Sql(@"
-                UPDATE \"Products\"
-                SET \"CompanyId\" = cat.\"CompanyId\"
-                FROM \"Categories\" cat
-                WHERE \"Products\".\"CategoryId\" = cat.\"Id\"
-                  AND \"Products\".\"CompanyId\" IS NULL;");
+                UPDATE ""Products""
+                SET ""CompanyId"" = cat.""CompanyId""
+                FROM ""Categories"" cat
+                WHERE ""Products"".""CategoryId"" = cat.""Id""
+                  AND ""Products"".""CompanyId"" IS NULL;");
 
             migrationBuilder.AlterColumn<int>(
                 name: "CompanyId",
