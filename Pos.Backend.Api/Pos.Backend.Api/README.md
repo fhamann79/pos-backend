@@ -85,6 +85,11 @@ Los perfiles locales definen los siguientes puertos:
 - super / super123 (SUPERVISOR)
 - cashier / cashier123 (CASHIER)
 
+Todos los usuarios demo se generan con contexto operativo válido y coherente en base de datos:
+- Company: Demo Company (RUC 9999999999001)
+- Establishment: 001 (Matriz)
+- EmissionPoint: 001 (Caja Principal)
+
 ---
 
 ## Notas

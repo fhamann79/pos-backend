@@ -44,10 +44,10 @@ public class JwtService
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim("username", user.Username),
-            new Claim("companyId", user.CompanyId.ToString()),
-            new Claim("establishmentId", user.EstablishmentId!.Value.ToString()),
-            new Claim("emissionPointId", user.EmissionPointId.ToString()),
+            new Claim(AppClaims.Username, user.Username),
+            new Claim(AppClaims.CompanyId, user.CompanyId.ToString()),
+            new Claim(AppClaims.EstablishmentId, user.EstablishmentId!.Value.ToString()),
+            new Claim(AppClaims.EmissionPointId, user.EmissionPointId.ToString()),
             new Claim(ClaimTypes.Role, roleCode ?? string.Empty)
         };
 

@@ -46,6 +46,12 @@ public class PosDbContext : DbContext
             entity.Property(c => c.Name)
                 .IsRequired()
                 .HasMaxLength(150);
+
+            entity.HasOne(c => c.Company)
+                .WithMany()
+                .HasForeignKey(c => c.CompanyId);
+
+            entity.HasIndex(c => new { c.CompanyId, c.Name }).IsUnique();
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -57,10 +63,15 @@ public class PosDbContext : DbContext
             entity.Property(p => p.Price)
                 .HasPrecision(18, 2);
 
+            entity.HasOne(p => p.Company)
+                .WithMany()
+                .HasForeignKey(p => p.CompanyId);
+
             entity.HasOne(p => p.Category)
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId);
 
+            entity.HasIndex(p => p.CompanyId);
             entity.HasIndex(p => p.CategoryId);
         });
     }
