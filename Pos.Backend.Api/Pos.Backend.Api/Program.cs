@@ -61,7 +61,11 @@ builder.Services.AddAuthorization(options =>
         AppPermissions.OpStructureWrite,
         AppPermissions.PosSalesCreate,
         AppPermissions.PosSalesVoid,
-        AppPermissions.ReportsSalesRead
+        AppPermissions.ReportsSalesRead,
+        AppPermissions.AdminUsersRead,
+        AppPermissions.AdminUsersWrite,
+        AppPermissions.AdminRolesRead,
+        AppPermissions.AdminRolesWrite
     });
 });
 

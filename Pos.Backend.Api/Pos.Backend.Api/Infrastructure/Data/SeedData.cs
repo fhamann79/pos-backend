@@ -71,7 +71,11 @@ public static class SeedData
             new { Code = AppPermissions.OpStructureWrite, Description = "Write operational structure" },
             new { Code = AppPermissions.PosSalesCreate, Description = "Crear ventas POS" },
             new { Code = AppPermissions.PosSalesVoid, Description = "Anular ventas POS" },
-            new { Code = AppPermissions.ReportsSalesRead, Description = "Leer reportes de ventas" }
+            new { Code = AppPermissions.ReportsSalesRead, Description = "Leer reportes de ventas" },
+            new { Code = AppPermissions.AdminUsersRead, Description = "Leer administración de usuarios" },
+            new { Code = AppPermissions.AdminUsersWrite, Description = "Escribir administración de usuarios" },
+            new { Code = AppPermissions.AdminRolesRead, Description = "Leer administración de roles" },
+            new { Code = AppPermissions.AdminRolesWrite, Description = "Escribir administración de roles" }
         };
 
         var existingPermissions = await context.Permissions
@@ -131,7 +135,11 @@ public static class SeedData
                     AppPermissions.OpStructureWrite,
                     AppPermissions.PosSalesCreate,
                     AppPermissions.PosSalesVoid,
-                    AppPermissions.ReportsSalesRead
+                    AppPermissions.ReportsSalesRead,
+                    AppPermissions.AdminUsersRead,
+                    AppPermissions.AdminUsersWrite,
+                    AppPermissions.AdminRolesRead,
+                    AppPermissions.AdminRolesWrite
                 }
             },
             {
@@ -147,7 +155,11 @@ public static class SeedData
                     AppPermissions.OpStructureWrite,
                     AppPermissions.PosSalesCreate,
                     AppPermissions.PosSalesVoid,
-                    AppPermissions.ReportsSalesRead
+                    AppPermissions.ReportsSalesRead,
+                    AppPermissions.AdminUsersRead,
+                    AppPermissions.AdminUsersWrite,
+                    AppPermissions.AdminRolesRead,
+                    AppPermissions.AdminRolesWrite
                 }
             },
             {
