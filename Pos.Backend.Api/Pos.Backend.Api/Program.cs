@@ -148,16 +148,7 @@ if (app.Environment.IsDevelopment())
         // 🔑 CLAVE: asegurar que las migraciones estén aplicadas
         await context.Database.MigrateAsync();
 
-        const string demoCompanyRuc = "9999999999001";
-
-        // Ahora sí es seguro consultar
-        var hasRealCompanies = await context.Companies
-            .AnyAsync(c => c.Ruc != demoCompanyRuc);
-
-        if (!hasRealCompanies)
-        {
-            await SeedData.SeedDevelopmentAsync(context);
-        }
+        await SeedData.SeedDevelopmentAsync(context);
     }
 }
 
