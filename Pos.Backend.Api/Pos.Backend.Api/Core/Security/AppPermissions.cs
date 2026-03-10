@@ -14,4 +14,8 @@ public static class AppPermissions
     public const string PosSalesCreate = "POS_SALES_CREATE";
     public const string PosSalesVoid = "POS_SALES_VOID";
     public const string ReportsSalesRead = "REPORTS_SALES_READ";
+    public const string AdminUsersRead = "ADMIN_USERS_READ";
+    public const string AdminUsersWrite = "ADMIN_USERS_WRITE";
+    public const string AdminRolesRead = "ADMIN_ROLES_READ";
+    public const string AdminRolesWrite = "ADMIN_ROLES_WRITE";
 }
