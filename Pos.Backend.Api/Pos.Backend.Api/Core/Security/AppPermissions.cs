@@ -12,6 +12,8 @@ public static class AppPermissions
     public const string OpStructureRead = "OP_STRUCTURE_READ";
     public const string OpStructureWrite = "OP_STRUCTURE_WRITE";
     public const string PosSalesCreate = "POS_SALES_CREATE";
+    public const string InventoryRead = "INVENTORY_READ";
+    public const string InventoryWrite = "INVENTORY_WRITE";
     public const string PosSalesVoid = "POS_SALES_VOID";
     public const string ReportsSalesRead = "REPORTS_SALES_READ";
     public const string AdminUsersRead = "ADMIN_USERS_READ";

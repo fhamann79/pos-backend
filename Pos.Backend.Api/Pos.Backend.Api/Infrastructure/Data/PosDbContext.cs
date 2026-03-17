@@ -19,6 +19,8 @@ public class PosDbContext : DbContext
     public DbSet<EmissionPoint> EmissionPoints { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<ProductStock> ProductStocks { get; set; }
+    public DbSet<InventoryMovement> InventoryMovements { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -62,6 +64,59 @@ public class PosDbContext : DbContext
                 .HasForeignKey(c => c.CompanyId);
 
             entity.HasIndex(c => new { c.CompanyId, c.Name }).IsUnique();
+        });
+
+
+
+        modelBuilder.Entity<ProductStock>(entity =>
+        {
+            entity.Property(ps => ps.Quantity)
+                .HasPrecision(18, 4);
+
+            entity.HasIndex(ps => new { ps.ProductId, ps.CompanyId, ps.EstablishmentId })
+                .IsUnique();
+
+            entity.HasOne(ps => ps.Product)
+                .WithMany()
+                .HasForeignKey(ps => ps.ProductId);
+
+            entity.HasOne(ps => ps.Company)
+                .WithMany()
+                .HasForeignKey(ps => ps.CompanyId);
+
+            entity.HasOne(ps => ps.Establishment)
+                .WithMany()
+                .HasForeignKey(ps => ps.EstablishmentId);
+        });
+
+        modelBuilder.Entity<InventoryMovement>(entity =>
+        {
+            entity.Property(im => im.Quantity)
+                .HasPrecision(18, 4);
+
+            entity.Property(im => im.StockBefore)
+                .HasPrecision(18, 4);
+
+            entity.Property(im => im.StockAfter)
+                .HasPrecision(18, 4);
+
+            entity.HasIndex(im => new { im.ProductId, im.CompanyId, im.EstablishmentId, im.CreatedAt });
+
+            entity.HasOne(im => im.Product)
+                .WithMany()
+                .HasForeignKey(im => im.ProductId);
+
+            entity.HasOne(im => im.Company)
+                .WithMany()
+                .HasForeignKey(im => im.CompanyId);
+
+            entity.HasOne(im => im.Establishment)
+                .WithMany()
+                .HasForeignKey(im => im.EstablishmentId);
+
+            entity.HasOne(im => im.User)
+                .WithMany()
+                .HasForeignKey(im => im.UserId);
         });
 
         modelBuilder.Entity<Product>(entity =>

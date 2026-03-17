@@ -35,6 +35,7 @@ builder.Services.AddDbContext<PosDbContext>(options =>
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IOperationalContextAccessor, OperationalContextAccessor>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<Pos.Backend.Api.WebApi.Filters.OperationalContextFilter>();
 
 builder.Services.AddAuthorization(options =>
@@ -60,6 +61,8 @@ builder.Services.AddAuthorization(options =>
         AppPermissions.OpStructureRead,
         AppPermissions.OpStructureWrite,
         AppPermissions.PosSalesCreate,
+        AppPermissions.InventoryRead,
+        AppPermissions.InventoryWrite,
         AppPermissions.PosSalesVoid,
         AppPermissions.ReportsSalesRead,
         AppPermissions.AdminUsersRead,
