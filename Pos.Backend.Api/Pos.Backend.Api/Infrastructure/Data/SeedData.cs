@@ -70,6 +70,8 @@ public static class SeedData
             new { Code = AppPermissions.OpStructureRead, Description = "Read operational structure" },
             new { Code = AppPermissions.OpStructureWrite, Description = "Write operational structure" },
             new { Code = AppPermissions.PosSalesCreate, Description = "Crear ventas POS" },
+            new { Code = AppPermissions.InventoryRead, Description = "Leer inventario" },
+            new { Code = AppPermissions.InventoryWrite, Description = "Escribir inventario" },
             new { Code = AppPermissions.PosSalesVoid, Description = "Anular ventas POS" },
             new { Code = AppPermissions.ReportsSalesRead, Description = "Leer reportes de ventas" },
             new { Code = AppPermissions.AdminUsersRead, Description = "Leer administración de usuarios" },
@@ -135,6 +137,8 @@ public static class SeedData
                     AppPermissions.OpStructureWrite,
                     AppPermissions.PosSalesCreate,
                     AppPermissions.PosSalesVoid,
+                    AppPermissions.InventoryRead,
+                    AppPermissions.InventoryWrite,
                     AppPermissions.ReportsSalesRead,
                     AppPermissions.AdminUsersRead,
                     AppPermissions.AdminUsersWrite,
@@ -155,6 +159,8 @@ public static class SeedData
                     AppPermissions.OpStructureWrite,
                     AppPermissions.PosSalesCreate,
                     AppPermissions.PosSalesVoid,
+                    AppPermissions.InventoryRead,
+                    AppPermissions.InventoryWrite,
                     AppPermissions.ReportsSalesRead,
                     AppPermissions.AdminUsersRead,
                     AppPermissions.AdminUsersWrite,
@@ -170,7 +176,8 @@ public static class SeedData
                     AppPermissions.CatalogCategoriesRead,
                     AppPermissions.CatalogProductsRead,
                     AppPermissions.OpStructureRead,
-                    AppPermissions.PosSalesCreate
+                    AppPermissions.PosSalesCreate,
+                    AppPermissions.InventoryRead
                 }
             }
         };
