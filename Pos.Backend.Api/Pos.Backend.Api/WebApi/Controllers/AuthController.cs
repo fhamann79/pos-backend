@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pos.Backend.Api.Core.DTOs;
+using Pos.Backend.Api.Core.Models;
 using Pos.Backend.Api.Core.Security;
 using Pos.Backend.Api.Core.Services;
 using System.Security.Claims;
@@ -24,10 +25,13 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto dto)
     {
-        var (ok, error) = await _auth.RegisterAsync(dto);
-        if (!ok) return BadRequest(new { error });
+        await Task.CompletedTask;
 
-        return Ok(new { message = "REGISTER_OK" });
+        return BadRequest(new ApiErrorResponse
+        {
+            Error = "PUBLIC_REGISTRATION_NOT_SUPPORTED",
+            Details = "Public registration is not supported. Users must be created via administrative module."
+        });
     }
 
     [HttpPost("login")]
