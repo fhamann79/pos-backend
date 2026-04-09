@@ -2,8 +2,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Pos.Backend.Api.Configuration;
 using Pos.Backend.Api.Core.Entities;
 using Pos.Backend.Api.Core.Security;
 using Pos.Backend.Api.Infrastructure.Data;
@@ -12,12 +13,12 @@ namespace Pos.Backend.Api.Core.Services;
 
 public class JwtService
 {
-    private readonly IConfiguration _config;
     private readonly PosDbContext _context;
+    private readonly JwtOptions _jwtOptions;
 
-    public JwtService(IConfiguration config, PosDbContext context)
+    public JwtService(IOptions<JwtOptions> jwtOptions, PosDbContext context)
     {
-        _config = config;
+        _jwtOptions = jwtOptions.Value;
         _context = context;
     }
 
@@ -57,7 +58,7 @@ public class JwtService
         }
 
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:Key"])
+            Encoding.UTF8.GetBytes(_jwtOptions.Key)
         );
 
         var creds = new SigningCredentials(
@@ -66,12 +67,10 @@ public class JwtService
         );
 
         var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+            issuer: _jwtOptions.Issuer,
+            audience: _jwtOptions.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(
-                int.Parse(_config["Jwt:ExpiresMinutes"])
-            ),
+            expires: DateTime.UtcNow.AddMinutes(_jwtOptions.ExpiresMinutes),
             signingCredentials: creds
         );
 
