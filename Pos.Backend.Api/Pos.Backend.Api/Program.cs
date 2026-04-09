@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Pos.Backend.Api.Core.Services;
 using Pos.Backend.Api.Core.Security;
+using Pos.Backend.Api.Configuration;
 using Pos.Backend.Api.Infrastructure.Data;
 using Pos.Backend.Api.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +12,25 @@ using Microsoft.OpenApi.Models;
 using Pos.Backend.Api.WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(defaultConnection))
+{
+    throw new InvalidOperationException(
+        "Missing required configuration 'ConnectionStrings:DefaultConnection'. Configure it via .NET User Secrets, appsettings, or environment variables.");
+}
+
+builder.Services
+    .AddOptions<JwtOptions>()
+    .Bind(builder.Configuration.GetSection("Jwt"));
+
+var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
+
+if (string.IsNullOrWhiteSpace(jwtOptions.Key))
+{
+    throw new InvalidOperationException(
+        "Missing required configuration 'Jwt:Key'. Configure it via .NET User Secrets, appsettings, or environment variables.");
+}
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -30,7 +51,7 @@ builder.Services.AddCors(options =>
 
 // DbContext
 builder.Services.AddDbContext<PosDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(defaultConnection));
 
 //Auth
 builder.Services.AddScoped<AuthService>();
@@ -118,22 +139,26 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
+.AddJwtBearer();
 
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
-        )
-    };
-});
+builder.Services
+    .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtOptions>>((options, jwtOptionsAccessor) =>
+    {
+        var jwt = jwtOptionsAccessor.Value;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwt.Issuer,
+            ValidAudience = jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwt.Key))
+        };
+    });
 
 var app = builder.Build();
 

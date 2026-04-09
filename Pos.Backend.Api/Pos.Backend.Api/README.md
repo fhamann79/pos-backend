@@ -24,20 +24,71 @@ Backend del sistema POS (multiempresa) con inventario, ventas y facturación ele
 
 ## Configuración
 
-Editar el archivo `appsettings.Development.json` para ajustar:
+El archivo `appsettings.Development.json` contiene valores locales no sensibles y placeholders seguros.
 
-- `ConnectionStrings:DefaultConnection`
-- `Jwt:Key`, `Jwt:Issuer`, `Jwt:Audience`
+Los secretos de desarrollo deben configurarse con `dotnet user-secrets`.
 
-Ejemplo de cadena de conexión:
+Ejemplo de estructura de configuración local:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=posdb_dev;Username=postgres;Password=TU_PASSWORD"
+    "DefaultConnection": ""
+  },
+  "Jwt": {
+    "Key": "",
+    "Issuer": "PosBackend",
+    "Audience": "PosFrontend",
+    "ExpiresMinutes": 120
   }
 }
 ```
+
+## 🔐 Configuración de secretos (Desarrollo)
+
+Este proyecto NO almacena secretos en el repositorio.
+
+Los valores sensibles como:
+- cadena de conexión a PostgreSQL
+- clave JWT
+
+deben configurarse usando .NET User Secrets.
+
+### 📍 Ubicación de los secretos
+
+Windows:
+C:\Users\<TU_USUARIO>\AppData\Roaming\Microsoft\UserSecrets\<UserSecretsId>\secrets.json
+
+WSL / Linux:
+~/.microsoft/usersecrets/<UserSecretsId>/secrets.json
+
+⚠️ No editar manualmente estos archivos.
+
+### 🚀 Configuración inicial
+
+Ejecutar dentro del proyecto:
+
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "TU_CADENA_REAL"
+dotnet user-secrets set "Jwt:Key" "TU_CLAVE_REAL"
+dotnet user-secrets set "Jwt:Issuer" "PosBackend"
+dotnet user-secrets set "Jwt:Audience" "PosFrontend"
+dotnet user-secrets set "Jwt:ExpiresMinutes" "120"
+
+### 🔍 Ver secretos
+
+dotnet user-secrets list
+
+### ⚠️ Importante
+
+- Los secretos son locales a cada entorno
+- Deben configurarse en WSL y Windows si se usan ambos
+
+### 🧠 Orden de carga de configuración
+
+1. appsettings.json
+2. appsettings.Development.json
+3. user-secrets
+4. variables de entorno
 
 ---
 
@@ -95,5 +146,5 @@ Todos los usuarios demo se generan con contexto operativo válido y coherente en
 ## Notas
 
 - La API es **stateless** y usa **JWT** para autenticación.
-- La configuración local vive en `appsettings.Development.json`.
-- Para cambiar la base de datos, actualiza la cadena de conexión en el archivo de configuración.
+- La configuración base vive en `appsettings.json` y `appsettings.Development.json`.
+- Los secretos locales deben cargarse mediante .NET User Secrets o variables de entorno.
