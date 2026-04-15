@@ -1,9 +1,13 @@
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Pos.Backend.Api.Infrastructure.Data;
 
 #nullable disable
 
 namespace Pos.Backend.Api.Migrations
 {
+    [DbContext(typeof(PosDbContext))]
+    [Migration("20260414090000_BE418InventoryMovementIntegrity")]
     public partial class BE418InventoryMovementIntegrity : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,7 +47,7 @@ namespace Pos.Backend.Api.Migrations
                         WHEN "Reference" ~ '^SALE-[0-9]+$' THEN substring("Reference" from 6)::integer
                         WHEN "Reference" ~ '^VOID-SALE-[0-9]+$' THEN substring("Reference" from 11)::integer
                         ELSE NULL
-                    END
+                    END;
                 """);
 
             migrationBuilder.CreateIndex(
